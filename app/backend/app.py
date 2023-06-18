@@ -5,6 +5,7 @@ import logging
 import openai
 from flask import Flask, request, jsonify
 from azure.identity import DefaultAzureCredential
+from azure.core.credentials import AzureKeyCredential
 from azure.search.documents import SearchClient
 from approaches.retrievethenread import RetrieveThenReadApproach
 from approaches.readretrieveread import ReadRetrieveReadApproach
@@ -15,9 +16,12 @@ from azure.storage.blob import BlobServiceClient
 # Replace these with your own values, either in environment variables or directly here
 AZURE_STORAGE_ACCOUNT = os.environ.get("AZURE_STORAGE_ACCOUNT") or "mystorageaccount"
 AZURE_STORAGE_CONTAINER = os.environ.get("AZURE_STORAGE_CONTAINER") or "content"
+AZURE_STORAGE_KEY = os.environ.get("AZURE_STORAGE_KEY") or ""
 AZURE_SEARCH_SERVICE = os.environ.get("AZURE_SEARCH_SERVICE") or "gptkb"
 AZURE_SEARCH_INDEX = os.environ.get("AZURE_SEARCH_INDEX") or "gptkbindex"
+AZURE_SEARCH_KEY = os.environ.get("AZURE_SEARCH_KEY") or ""
 AZURE_OPENAI_SERVICE = os.environ.get("AZURE_OPENAI_SERVICE") or "myopenai"
+AZURE_OPENAI_KEY = os.environ.get("AZURE_OPENAI_KEY") or ""
 AZURE_OPENAI_GPT_DEPLOYMENT = os.environ.get("AZURE_OPENAI_GPT_DEPLOYMENT") or "davinci"
 AZURE_OPENAI_CHATGPT_DEPLOYMENT = os.environ.get("AZURE_OPENAI_CHATGPT_DEPLOYMENT") or "chat"
 
@@ -35,20 +39,25 @@ azure_credential = DefaultAzureCredential()
 openai.api_type = "azure"
 openai.api_base = f"https://{AZURE_OPENAI_SERVICE}.openai.azure.com"
 openai.api_version = "2022-12-01"
+openai.api_key = AZURE_OPENAI_KEY #new set api key here
 
 # Comment these two lines out if using keys, set your API key in the OPENAI_API_KEY environment variable instead
-openai.api_type = "azure_ad"
-openai_token = azure_credential.get_token("https://cognitiveservices.azure.com/.default")
-openai.api_key = openai_token.token
+# openai.api_type = "azure_ad"
+# openai_token = azure_credential.get_token("https://cognitiveservices.azure.com/.default")
+# openai.api_key = openai_token.token
+
+
+search_creds = AzureKeyCredential(AZURE_SEARCH_KEY) #the azure_credential does not works
+storage_creds = AZURE_STORAGE_KEY #the azure_credential does not works
 
 # Set up clients for Cognitive Search and Storage
 search_client = SearchClient(
     endpoint=f"https://{AZURE_SEARCH_SERVICE}.search.windows.net",
     index_name=AZURE_SEARCH_INDEX,
-    credential=azure_credential)
+    credential=search_creds)
 blob_client = BlobServiceClient(
     account_url=f"https://{AZURE_STORAGE_ACCOUNT}.blob.core.windows.net", 
-    credential=azure_credential)
+    credential=storage_creds)
 blob_container = blob_client.get_container_client(AZURE_STORAGE_CONTAINER)
 
 # Various approaches to integrate GPT and external knowledge, most applications will use a single one of these patterns
@@ -110,6 +119,7 @@ def chat():
         return jsonify({"error": str(e)}), 500
 
 def ensure_openai_token():
+    return
     global openai_token
     if openai_token.expires_on < int(time.time()) - 60:
         openai_token = azure_credential.get_token("https://cognitiveservices.azure.com/.default")

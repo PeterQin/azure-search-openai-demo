@@ -60,6 +60,7 @@ def blob_name_from_file_page(filename, page = 0):
         return os.path.basename(filename)
 
 def upload_blobs(filename):
+    print(args.storageaccount)
     blob_service = BlobServiceClient(account_url=f"https://{args.storageaccount}.blob.core.windows.net", credential=storage_creds)
     blob_container = blob_service.get_container_client(args.container)
     if not blob_container.exists():
@@ -232,6 +233,8 @@ def create_sections(filename, page_map):
 
 def create_search_index():
     if args.verbose: print(f"Ensuring search index {args.index} exists")
+    print(search_creds)
+    print(args.searchservice)
     index_client = SearchIndexClient(endpoint=f"https://{args.searchservice}.search.windows.net/",
                                      credential=search_creds)
     if args.index not in index_client.list_index_names():
