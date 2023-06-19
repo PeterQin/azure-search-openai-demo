@@ -14,6 +14,7 @@ param backendServiceName string = ''
 param resourceGroupName string = ''
 
 param searchServiceName string = ''
+param searchServiceKey string = ''
 param searchServiceResourceGroupName string = ''
 param searchServiceResourceGroupLocation string = location
 
@@ -21,26 +22,29 @@ param searchServiceSkuName string = 'standard'
 param searchIndexName string = 'gptkbindex'
 
 param storageAccountName string = ''
+param storageAccountKey string = ''
 param storageResourceGroupName string = ''
 param storageResourceGroupLocation string = location
 param storageContainerName string = 'content'
 
 param openAiServiceName string = ''
+param openAiServiceKey string = ''
 param openAiResourceGroupName string = ''
 param openAiResourceGroupLocation string = location
 
 param openAiSkuName string = 'S0'
 
 param formRecognizerServiceName string = ''
+param formRecognizerServiceKey string = ''
 param formRecognizerResourceGroupName string = ''
 param formRecognizerResourceGroupLocation string = location
 
 param formRecognizerSkuName string = 'S0'
 
-param gptDeploymentName string = 'davinci'
+param gptDeploymentName string = 'text-davinci-003'
 param gptDeploymentCapacity int = 30
 param gptModelName string = 'text-davinci-003'
-param chatGptDeploymentName string = 'chat'
+param chatGptDeploymentName string = 'gpt-35-turbo'
 param chatGptDeploymentCapacity int = 30
 param chatGptModelName string = 'gpt-35-turbo'
 
@@ -58,21 +62,21 @@ resource resourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   tags: tags
 }
 
-resource openAiResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' existing = if (!empty(openAiResourceGroupName)) {
-  name: !empty(openAiResourceGroupName) ? openAiResourceGroupName : resourceGroup.name
-}
+// resource openAiResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' existing = if (!empty(openAiResourceGroupName)) {
+//   name: !empty(openAiResourceGroupName) ? openAiResourceGroupName : resourceGroup.name
+// }
 
-resource formRecognizerResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' existing = if (!empty(formRecognizerResourceGroupName)) {
-  name: !empty(formRecognizerResourceGroupName) ? formRecognizerResourceGroupName : resourceGroup.name
-}
+// resource formRecognizerResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' existing = if (!empty(formRecognizerResourceGroupName)) {
+//   name: !empty(formRecognizerResourceGroupName) ? formRecognizerResourceGroupName : resourceGroup.name
+// }
 
-resource searchServiceResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' existing = if (!empty(searchServiceResourceGroupName)) {
-  name: !empty(searchServiceResourceGroupName) ? searchServiceResourceGroupName : resourceGroup.name
-}
+// resource searchServiceResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' existing = if (!empty(searchServiceResourceGroupName)) {
+//   name: !empty(searchServiceResourceGroupName) ? searchServiceResourceGroupName : resourceGroup.name
+// }
 
-resource storageResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' existing = if (!empty(storageResourceGroupName)) {
-  name: !empty(storageResourceGroupName) ? storageResourceGroupName : resourceGroup.name
-}
+// resource storageResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' existing = if (!empty(storageResourceGroupName)) {
+//   name: !empty(storageResourceGroupName) ? storageResourceGroupName : resourceGroup.name
+// }
 
 // Create an App Service Plan to group applications under the same payment plan and SKU
 module appServicePlan 'core/host/appserviceplan.bicep' = {
@@ -106,9 +110,12 @@ module backend 'core/host/appservice.bicep' = {
     appSettings: {
       AZURE_STORAGE_ACCOUNT: storageAccountName
       AZURE_STORAGE_CONTAINER: storageContainerName
+      AZURE_STORAGE_KEY: storageAccountKey
       AZURE_OPENAI_SERVICE: openAiServiceName
+      AZURE_OPENAI_KEY: openAiServiceKey
       AZURE_SEARCH_INDEX: searchIndexName
       AZURE_SEARCH_SERVICE: searchServiceName
+      AZURE_SEARCH_KEY: searchServiceKey
       AZURE_OPENAI_GPT_DEPLOYMENT: gptDeploymentName
       AZURE_OPENAI_CHATGPT_DEPLOYMENT: chatGptDeploymentName
     }
@@ -304,35 +311,35 @@ module backend 'core/host/appservice.bicep' = {
 // }
 
 // SYSTEM IDENTITIES
-module openAiRoleBackend 'core/security/role.bicep' = {
-  scope: openAiResourceGroup
-  name: 'openai-role-backend'
-  params: {
-    principalId: backend.outputs.identityPrincipalId
-    roleDefinitionId: '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd'
-    principalType: 'ServicePrincipal'
-  }
-}
+// module openAiRoleBackend 'core/security/role.bicep' = {
+//   scope: openAiResourceGroup
+//   name: 'openai-role-backend'
+//   params: {
+//     principalId: backend.outputs.identityPrincipalId
+//     roleDefinitionId: '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd'
+//     principalType: 'ServicePrincipal'
+//   }
+// }
 
-module storageRoleBackend 'core/security/role.bicep' = {
-  scope: storageResourceGroup
-  name: 'storage-role-backend'
-  params: {
-    principalId: backend.outputs.identityPrincipalId
-    roleDefinitionId: '2a2b9908-6ea1-4ae2-8e65-a410df84e7d1'
-    principalType: 'ServicePrincipal'
-  }
-}
+// module storageRoleBackend 'core/security/role.bicep' = {
+//   scope: storageResourceGroup
+//   name: 'storage-role-backend'
+//   params: {
+//     principalId: backend.outputs.identityPrincipalId
+//     roleDefinitionId: '2a2b9908-6ea1-4ae2-8e65-a410df84e7d1'
+//     principalType: 'ServicePrincipal'
+//   }
+// }
 
-module searchRoleBackend 'core/security/role.bicep' = {
-  scope: searchServiceResourceGroup
-  name: 'search-role-backend'
-  params: {
-    principalId: backend.outputs.identityPrincipalId
-    roleDefinitionId: '1407120a-92aa-4202-b7e9-c0e197c71c8f'
-    principalType: 'ServicePrincipal'
-  }
-}
+// module searchRoleBackend 'core/security/role.bicep' = {
+//   scope: searchServiceResourceGroup
+//   name: 'search-role-backend'
+//   params: {
+//     principalId: backend.outputs.identityPrincipalId
+//     roleDefinitionId: '1407120a-92aa-4202-b7e9-c0e197c71c8f'
+//     principalType: 'ServicePrincipal'
+//   }
+// }
 
 output AZURE_LOCATION string = location
 output AZURE_TENANT_ID string = tenant().tenantId

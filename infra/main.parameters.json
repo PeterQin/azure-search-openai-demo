@@ -14,6 +14,9 @@
     "openAiServiceName": {
       "value": "${AZURE_OPENAI_SERVICE}"
     },
+    "openAiServiceKey": {
+      "value": "${AZURE_OPENAI_KEY}"
+    },
     "openAiResourceGroupName": {
       "value": "${AZURE_OPENAI_RESOURCE_GROUP}"
     },
@@ -22,6 +25,9 @@
     },
     "formRecognizerServiceName": {
       "value": "${AZURE_FORMRECOGNIZER_SERVICE}"
+    },
+    "formRecognizerServiceKey": {
+      "value": "${AZURE_FORMRECOGNIZER_KEY}"
     },
     "formRecognizerResourceGroupName": {
       "value": "${AZURE_FORMRECOGNIZER_RESOURCE_GROUP}"
@@ -32,6 +38,9 @@
     "searchServiceName": {
       "value": "${AZURE_SEARCH_SERVICE}"
     },
+    "searchServiceKey": {
+      "value": "${AZURE_SEARCH_KEY}"
+    },
     "searchServiceResourceGroupName": {
       "value": "${AZURE_SEARCH_SERVICE_RESOURCE_GROUP}"
     },
@@ -40,6 +49,9 @@
     },
     "storageAccountName": {
       "value": "${AZURE_STORAGE_ACCOUNT}"
+    },
+    "storageAccountKey": {
+      "value": "${AZURE_STORAGE_KEY}"
     },
     "storageResourceGroupName": {
       "value": "${AZURE_STORAGE_RESOURCE_GROUP}"
